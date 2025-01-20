@@ -2,16 +2,18 @@ import React, {FC} from "react";
 import {Layout, Row, Menu} from "antd";
 import {useHistory} from 'react-router-dom';
 import { Routes } from "../router/index.ts";
+import { observer } from 'mobx-react-lite';
+import {Store} from "../store/index.ts";
 import logo from "../images/monkey.svg";
 
 
-const Navbar:FC = () => {
+const Navbar:FC = observer(() => {
+    const { regAuth } = Store.getInstance();
     const router = useHistory()
-    const auth = true
     return (
         <Layout.Header>
             <Row justify="space-between" align="middle">
-                {auth
+                {regAuth
                 ?
                 <>
                 <div style={{ color: 'white', display: 'flex', alignItems: 'center' }}>
@@ -32,17 +34,28 @@ const Navbar:FC = () => {
                     </Menu.Item>
                     <Menu.Item 
                     onClick={ () => router.push(Routes.AUTH)} 
-                    key={1}>
+                    key={2}>
                     Аунтефикация
                     </Menu.Item>
                     <Menu.Item 
                     onClick={ () => console.log('выйти')} 
-                    key={1}>
-                    Выйти
+                    key={3}>
+                    Другая почта
                     </Menu.Item>
                 </Menu> 
                 </> 
                 :
+                <>
+                <div style={{ color: 'white', display: 'flex', alignItems: 'center' }}>
+                    <img
+                        src={logo} 
+                        alt="logo" 
+                        style={{
+                            height: "40px", 
+                            marginRight: "10px"
+                        }} 
+                    />
+                </div>
                 <Menu theme="dark" mode="horizontal" selectable={false}>
                     <Menu.Item 
                     onClick={ () => router.push(Routes.REGISTER)} 
@@ -50,13 +63,11 @@ const Navbar:FC = () => {
                     Регистрация
                     </Menu.Item>
                 </Menu> 
+                </>
                 }     
             </Row>
         </Layout.Header>
-    )
-}
+    );
+});
 
 export default Navbar
-
-//<img src={logo} className="App-logo" alt="logo" />
-//import logo from '../images/monkey.svg';
