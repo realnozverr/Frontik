@@ -1,12 +1,14 @@
 import React from 'react';
 import {Switch, Route, Redirect} from 'react-router-dom';
 import {privateRoutes, publicRoutes} from '../router/index.ts';
+import { observer } from 'mobx-react-lite';
 import { Routes } from "../router/index.ts";
+import { Store } from "../store/index.ts";
 
-const AppRouter = () => {
-    const auth = false;
+const AppRouter = observer(() => {
+    const { regAuth } = Store.getInstance();
     return (
-         auth ?
+        regAuth ?
         <Switch>
             {privateRoutes.map(route => 
                 <Route path={route.path} 
@@ -29,6 +31,6 @@ const AppRouter = () => {
             <Redirect to={Routes.REGISTER}/>
         </Switch>
     );
-};
+});
 
 export default AppRouter;

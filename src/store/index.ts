@@ -3,90 +3,94 @@ import Cookies from "cookie";
 import { authRequest, registerRequest } from "../api/api.ts"
 
 class Store {
-    private static instance: Store;
+  private static instance: Store;
 
-    regAuth: boolean = false;
-    email: string;
-    code: string;
-    isLoading: boolean = false;
-    error: string | null = null;
-    sucess: string | null = null;
+  regAuth: boolean = false;
+  email: string;
+  code: string;
+  isLoading: boolean = false;
+  message: string | null = null;
+  messageType: "success" | "error" | null = null;
 
-  
-    constructor() {
+  constructor() {
       makeAutoObservable(this);
       this.checkCookies();
-    }
-
-    static getInstance() {
-      if (!Store.instance) {
-        Store.instance = new Store();
-      }
-      return Store.instance; 
-    }
-
-    setLoading(loading: boolean) {
-      this.isLoading = loading;
-    }
-
-    setError(error: string | null) {
-        this.error = error;
-    }
-
-    setSucess(sucess: string | null) {
-      this.sucess = sucess;
   }
 
-
-    private checkCookies() {
-      const cookies = Cookies.parse(document.cookie);
-      const regData = cookies.regData;
-  
-      if (regData) {
-        const [email, authStatus] = regData.split('|');
-        this.email = email;
-        this.regAuth = authStatus === 'true';
+  static getInstance() {
+      if (!Store.instance) {
+          Store.instance = new Store();
       }
-    }
+      return Store.instance;
+  }
 
-    async registration(email: string) {
-      this.setLoading(true); 
-      this.setError(null);
-      this.setSucess(null); 
+  setLoading(loading: boolean) {
+      this.isLoading = loading;
+  }
+
+  setMessage(message: string | null, type: "success" | "error" | null = null) {
+      this.message = message;
+      this.messageType = type; 
+  }
+
+  setRegAuth(regAuth: boolean) {
+      this.regAuth = regAuth;
+  }
+
+  setEmail(email: string) {
+      this.email = email;
+  }
+
+  private checkCookies() {
+    console.log("document.cookie:", document.cookie);
+
+    const cookies = Cookies.parse(document.cookie);
+    console.log("Parsed cookies:", cookies);
+
+    const regData = cookies.regData;
+
+    if (regData) {
+        console.log("regData cookie value:", regData);
+
+        const [email, authStatus] = regData.split('|');
+        this.setEmail(email);
+        this.setRegAuth(authStatus === 'false');
+        console.log("Email set to:", email);
+        console.log("Auth status:", authStatus);
+    } else {
+        console.log("No regData cookie found.");
+    }
+}
+
+
+  async registration(email: string) {
+      this.setLoading(true);
+      this.setMessage(null);
+
       try {
           const response = await registerRequest(email);
-          if (response.success) { 
-              this.sucess = response.message;
-              this.regAuth = true; 
-              this.email = email; 
-          } else {
-            this.setError(response.message);
-          }
+              this.setMessage(response.message, "success");
+              this.setRegAuth(true);
       } catch (error) {
-        this.setError(error.message);
+          this.setMessage(error.message, "error");
       } finally {
-        this.setLoading(false);
-    }
-    }
-
-    async authorization(code: string) {
-      this.setLoading(true); 
-      this.setError(null); 
-      try {
-          const response = await authRequest(code);
-          if (response.success) { 
-              this.regAuth = true; 
-              this.code = code; 
-          } else {
-            this.setError(response.message);
-          }
-      } catch (error) {
-        this.setError(error.message);
-      } finally {
-        this.setLoading(false);
-    }
-    }
+          this.setLoading(false);
+      }
   }
 
+  async authorization(code: string) {
+      this.setLoading(true);
+      this.setMessage(null);
+      try {
+          const response = await authRequest(code);
+          this.setMessage(response.message, "success");
+      } catch (error) {
+          this.setMessage(error.message, "error");
+      } finally {
+          this.setLoading(false);
+      }
+  }
+}
+
 const storeInstance = Store.getInstance();
-export {Store}
+export { Store };
