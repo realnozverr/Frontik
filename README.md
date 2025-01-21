@@ -4,8 +4,8 @@
 
 
 ## Технологии
-**React**
-**Ts**
-**Mobx**
-**Antd**
-**react-router-dom@5**
+*React*
+*Ts*
+*Mobx*
+*Antd*
+*react-router-dom@5*
